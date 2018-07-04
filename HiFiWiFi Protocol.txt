@@ -1,0 +1,18 @@
+HiFiWiFi Protocol
+
+Message type: JSON
+
+
+Possible commands: "play", "pause", "add", "queue"
+
+"play": Simple command to resume playing
+		{ "command":"play" }
+	
+"pause": Simple command to pause playing
+		{ "command":"pause" }
+		
+"add": Command that adds a youtube link to the end of the playlist
+		{ "command":"add", "p1":"*link*" }
+		
+"queue": Command that sends the entire playlist, overwriting the existing playlist, used when changing playlist order
+		{ "command":"queue", "p1": [ "*link0*", "*link1*", "*link2*" ] }
