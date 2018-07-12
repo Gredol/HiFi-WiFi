@@ -5,12 +5,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Main {
 	static File file = new File("D:\\Users\\Ziga\\queue.txt");
 	static int port = 3333;
-	static ArrayList<String> queue = new ArrayList<String>();
+	static Queue<String> queue = new LinkedList<>();
 	
 	public static void main(String[] args) throws UnknownHostException {
 		Server server = new Server(port);
@@ -28,16 +29,16 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		readFileToArrayList(file, queue);
+		readFileToQueue(file, queue);
 		System.out.println(queue);
 	}
 	
-	public static void readFileToArrayList(File file, ArrayList<String> list) {
+	public static void readFileToQueue(File file, Queue<String> queue) {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String line;
 			while ((line = reader.readLine()) != null) {
-				list.add(line);
+				queue.add(line);
 			}
 			reader.close();
 		} catch (IOException e) {

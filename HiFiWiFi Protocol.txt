@@ -3,7 +3,7 @@ HiFiWiFi Protocol
 Message type: JSON
 
 
-Possible commands: "play", "pause", "add", "queue"
+Possible commands: "play", "pause", "add", "queue", "next"
 
 "play": Simple command to resume playing
 		{ "command":"play" }
@@ -16,3 +16,6 @@ Possible commands: "play", "pause", "add", "queue"
 		
 "queue": Command that sends the entire playlist, overwriting the existing playlist, used when changing playlist order
 		{ "command":"queue", "p1": [ "*link0*", "*link1*", "*link2*" ] }
+
+"next": Command that plays the first song in the queue and deletes that song from the queue and the file
+		{ "command":"next" }

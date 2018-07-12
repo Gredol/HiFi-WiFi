@@ -1,5 +1,6 @@
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.Queue;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -26,7 +27,7 @@ public class Server extends WebSocketServer {
 	}
 
 	
-//	EXAMPLE JSON PLAY COMMAND: { "command":"play", "p1":"https://www.youtube.com/watch?v=RmibkOh25uY", "p2":null }
+//	EXAMPLE JSON PLAY COMMAND: { "command":"play", "p1":"https://www.youtube.com/watch?v=RmibkOh25uY" }
 //	EXAMPLE JSON QUEUE COMMAND: { "command":"queue", "p1": [ "https://www.youtube.com/watch?v=RmibkOh25uY", "https://www.youtube.com/watch?v=RmibkOh25uY" ] }
 	@Override
 	public void onMessage(WebSocket arg0, String arg1) {
@@ -56,14 +57,16 @@ public class Server extends WebSocketServer {
 					Main.queue.add(jsonQueue.get(i).toString());
 					System.out.println(Main.queue);
 				}
-				for (int i = 0; i < Main.queue.size(); i++) {
-					if (i == 0) {
-						Main.writeFile(Main.file, Main.queue.get(i), false);
-					} else {						
-						Main.writeFile(Main.file, Main.queue.get(i), true);
+				Main.queue.forEach(item -> {
+					if (item == Main.queue.peek()) {
+						Main.writeFile(Main.file, item, false);
+					} else {
+						Main.writeFile(Main.file, item, true);
 					}
-				}
+				});
 				sendEveryone(arg0, arg1);
+			} else if (jsonObject.get("command").equals("next")) {
+				next(Main.queue);
 			} else {
 				arg0.send("Invalid command!");
 			}
@@ -89,5 +92,28 @@ public class Server extends WebSocketServer {
 			}
 		}
 	}
-
+	
+	public void next(Queue<String> queue) {
+		if (Main.queue.size() > 1) {
+			String song = Main.queue.remove();
+			Main.queue.forEach(item -> {
+				if (item == Main.queue.peek()) {
+					Main.writeFile(Main.file, item, false);
+				} else {
+					Main.writeFile(Main.file, item, true);
+				}
+			});
+			System.out.println("queue: " + Main.queue);
+			System.out.println("call VLC's play song method with: " + song);
+		} else if(!Main.queue.isEmpty()){
+			String song = Main.queue.remove();
+			Main.writeFile(Main.file, "", false);
+			System.out.println("queue: " + Main.queue);
+			System.out.println("call VLC's play song method with: " + song);
+		} else {
+			System.out.println("queue empty");
+			System.out.println(Main.queue);			
+		}
+	}
+	
 }
