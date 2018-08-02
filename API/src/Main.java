@@ -8,12 +8,27 @@ import java.net.UnknownHostException;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.SwingUtilities;
+
+import uk.co.caprica.vlcj.discovery.NativeDiscovery;
+
 public class Main {
-	static File file = new File("D:\\Users\\Ziga\\queue.txt");
+	static File file = new File("queue.txt");
 	static int port = 3333;
 	static Queue<String> queue = new LinkedList<>();
-	
-	public static void main(String[] args) throws UnknownHostException {
+
+	static Status status = Status.stopped;
+	public static void main(String[] args) throws UnknownHostException, InterruptedException {
+		/*Initialize VLC interface*/
+		System.out.println("Init VLC");
+        new NativeDiscovery().discover();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new VLC(args);
+            }
+        });
+        Thread.sleep(1000);//hacky code
 		Server server = new Server(port);
 		server.start();
 		System.out.println("Web socket started on port " + port);
@@ -30,6 +45,10 @@ public class Main {
 		}
 		
 		readFileToQueue(file, queue);
+		if(!queue.isEmpty() && status == Status.stopped) {
+			VLC.play(queue.remove());
+		}
+		
 		System.out.println(queue);
 	}
 	
@@ -57,6 +76,37 @@ public class Main {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	public static void changeState (Status newState) {
+		status = newState;
+		if(status == Status.stopped && !queue.isEmpty()) {
+			next(queue);
+		}
+	}
+	public static void next(Queue<String> queue) {
+		if (Main.queue.size() > 1) {
+			String song = queue.remove();
+			Main.queue.forEach(item -> {
+				if (item == queue.peek()) {
+					writeFile(file, item, false);
+				} else {
+					writeFile(file, item, true);
+				}
+			});
+			System.out.println("queue: " + queue);
+			System.out.println("call VLC's play song method with: " + song);
+			VLC.play(song);
+		} else if(!Main.queue.isEmpty()){
+			String song = queue.remove();
+			Main.writeFile(file, "", false);
+			System.out.println("queue: " + queue);
+			System.out.println("call VLC's play song method with: " + song);
+			VLC.stop();
+			VLC.play(song);
+		} else {
+			System.out.println("queue empty");
+			System.out.println(Main.queue);			
 		}
 	}
 }
