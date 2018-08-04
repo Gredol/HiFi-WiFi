@@ -1,6 +1,5 @@
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.Queue;
 
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
